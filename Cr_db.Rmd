@@ -1,0 +1,218 @@
+---
+title: "Chromium database for CoralOX"
+author: "Marcos Fontela"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    toc_depth: 5
+    theme: flatly
+    df_print: paged
+---
+
+```{=html}
+<style>
+body {
+text-align: justify}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,fig.align="center")
+list.of.packages <- c("pangaear", "zen4R", "tidyverse", "readxl", "readr", "patchwork")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+#This step install packages when needed
+Sys.setlocale(locale = "English") #For the datetime plots (months in english and not in local language of the laptop)
+# Load packages -----------------------------------------------------------
+library(tidyverse)
+library(readxl)
+library(pangaear)
+library(zen4R)
+library(readr)
+library(patchwork)
+```
+I started searching for Chromium (**Cr**) data in [GEOTRACES electronic atlas](https://www.egeotraces.org/). Nothing at all. It is based in *GEOTRACES Intermediate Data Product 2021*. There are few sections (5, a in Atlantic and 3 in Arctic) with the concentration of total **particulate chromium** determined by filtration from a water sampling bottle. No data for dissolved Cr.
+
+The same happens in *PANGAEA*, with almost no dissolved measurements. Most of them are over the particulate fraction and/or not in seawater. The only one available was these old measurements in the northwest Pacific.
+
+* Demina, Lyudmila L; Atnashev, Vitaly B (1989): Concentrations of dissolved and particulate heavy metals in waters above the northwestern slope of the Paramushir Island (Sea of Okhotsk). PANGAEA, https://doi.org/10.1594/PANGAEA.757685, Supplement to: Demina, LL; Atnashev, VB (1989): Anomalous behavior of metals in the vicinity of an underwater gas vent off Paramushir Island, Sea of Okhotsk. Oceanology, 29(6), 708-714
+
+```{r pangaea}
+pangaear::pg_search(query = "dissolved chromium seawater")
+#Most of them are in particulate or not even in seawater
+#The most promising one:
+Demina_doi="10.1594/PANGAEA.757685" #https://doi.pangaea.de/10.1594/PANGAEA.757685
+Demina<-as.data.frame(pangaear::pg_data(doi=Demina_doi)[[1]][["data"]])%>%
+  mutate(ref="Demina1989")
+rm(Demina_doi) #no longer needed
+```
+
+Following literature (specially the recent one) I get five more datasets that can be relevant. Data from:
+
+* Bonnand P, James RH, Parkinson IJ, et al (2013) The chromium isotopic composition of seawater and marine carbonates. Earth Planet Sci Lett 382:10–20. https://doi.org/https://doi.org/10.1016/j.epsl.2013.09.001
+
+* Scheiderich K, Amini M, Holmden C, Francois R (2015) Global variability of chromium isotopes in seawater demonstrated by Pacific, Atlantic, and Arctic Ocean samples. Earth Planet Sci Lett 423:87–97. https://doi.org/https://doi.org/10.1016/j.epsl.2015.04.030
+
+* Rickli J, Janssen DJ, Hassler C, et al (2019) Chromium biogeochemistry and stable isotope distribution in the Southern Ocean. Geochim Cosmochim Acta 262:188–206. https://doi.org/https://doi.org/10.1016/j.gca.2019.07.033
+
+* Moos SB, Boyle EA (2019) Determination of accurate and precise chromium isotope ratios in seawater samples by MC-ICP-MS illustrated by analysis of SAFe Station in the North Pacific Ocean. Chem Geol 511:481–493. https://doi.org/https://doi.org/10.1016/j.chemgeo.2018.07.027
+
+* Janssen DJ, Rickli J, Quay PD, et al (2020) Biological Control of Chromium Redox and Stable Isotope Composition in the Surface Ocean. Global Biogeochem Cycles 34:e2019GB006397. https://doi.org/https://doi.org/10.1029/2019GB006397
+
+* Janssen DJ, Rickli J, Abbott AN, et al (2021) Release from biogenic particles, benthic fluxes, and deep water circulation control Cr and δ53Cr distributions in the ocean interior. Earth Planet Sci Lett 574:117163. https://doi.org/https://doi.org/10.1016/j.epsl.2021.117163
+
+Some of them can be directly downloaded from [Zenodo](https://zenodo.org/), the *Scheiderich2015*, the *Bonnand2013* and the *MoosBoyle2019* data were manually transferred from the Tables of the article into an Excel file. Some time after the processing I realized that *Bonnand2013* data is included in the *Scheiderich2015* file
+
+
+```{r download data}
+#I download some files directly from Zenodo
+#The first time you run the markdown file, the files are downloaded.
+if (!dir.exists("DATA/Rickli2019")) { #But don't if they already exists.
+# https://zenodo.org/record/3250980
+dir.create("DATA/Rickli2019", showWarnings = FALSE)
+zen4R::download_zenodo(path = "DATA/Rickli2019", "10.5281/zenodo.3250980")
+}
+
+if (!dir.exists("DATA/Janssen2020")) {
+#https://zenodo.org/record/3560082
+dir.create("DATA/Janssen2020", showWarnings = FALSE)
+zen4R::download_zenodo(path = "DATA/Janssen2020", "10.5281/zenodo.3560082")
+}
+
+if (!dir.exists("DATA/Janssen2021")) {
+#https://zenodo.org/record/5408613
+dir.create("DATA/Janssen2021", showWarnings = FALSE)
+zen4R::download_zenodo(path = "DATA/Janssen2021", "10.5281/zenodo.5408613")
+}
+```
+
+```{r load files}
+Bonnand2013 <- read_excel("DATA/Bonnand2013.xlsx")%>%
+  mutate(ref="Bonnand2013")
+
+Scheiderich2015 <- read_excel("DATA/Scheiderich2015.xlsx")%>%
+  mutate(ref="Scheiderich2015")
+
+Rickli2019 <- read_csv("DATA/Rickli2019/ace_chromium_isotope_concentration.csv", show_col_types = FALSE)%>% #perfect
+  mutate(ref="Rickli2019")
+
+MoosBoyle2019 <- read_excel("DATA/MoosBoyle2019.xlsx", skip = 1)%>%
+  mutate(ref="MoosBoyle2019")
+
+Janssen2020 <- read_excel("DATA/Janssen2020/Janssen_etal_KM1713_Cr_Data.xlsx", 
+    sheet = "Sheet1", range = "A2:O96") #FAIL. Needs a lot of pre-processing
+
+Janssen2021 <- read_delim("DATA/Janssen2021/Janssen_etal_d53CrData_Zenodo.txt", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)%>% #Not perfect but easy to solve afterwards.
+  mutate(ref="Janssen2021")
+#fix colnames:
+colnames(Janssen2021)[8]="neutral_density"
+colnames(Janssen2021)[11]="53Cr"
+colnames(Janssen2021)[12]="error53Cr"
+#delete the first two rows (they are empty or have units) and convert to numeric
+Janssen2021=Janssen2021[-(1:2),]
+Janssen2021[,c(3:15)]=sapply(Janssen2021[, c(3:15)], as.numeric)
+
+#NEW Janssen 2020 after manual processing
+Janssen2020 <- read_excel("DATA/Janssen2020.xlsx", 
+    col_types = c("text", "numeric", "numeric", 
+        "numeric", "text", "numeric", "text", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"), skip = 1, na = "NA")%>%
+  mutate(ref="Janssen2020")
+```
+
+One of the problems, [Cr] does not share units:
+*Demina microg/L
+*Bonnand2013 in in nM (= nmol/L)
+*Scheid2015 in ng/kg
+*Rickli2019 in nmol/kg
+*MoosBoyle2019 in nmol/kg
+*Janssen2020 in nmol/kg and ng/kg
+*Janssen2021 in nmol/kg
+
+for what I see, the units in **nmol/kg** are the standard
+
+```{r Cr in the same units}
+#Demina microg/L
+#Bonnand2013 in in nM (= nmol/L)
+#Scheid2015 in ng/kg
+#Rickli2019 in nmol/kg
+#Janssen2020 in nmol/kg and ng/kg
+#Janssen2021 in nmol/kg
+
+#Inside Scheid2015 there is the Bonnand data in ng/kg. Molar mass Chromium: 26.982 g/mol
+Scheiderich2015<-mutate(Scheiderich2015, `Cr [nmol_kg]`= `Cr (ng/kg)`/26.982)
+```
+ 
+  The next step is to merge the databases in a single one
+
+```{r fix column names}
+# Longitude, Latitude, Station, Depth, Cr [nmol_kg], d53Cr
+colnames(Bonnand2013)[1]="Station"
+colnames(Bonnand2013)[4]="Depth"
+colnames(Demina)[5]="Depth"
+colnames(Scheiderich2015)[2]="Depth"
+colnames(Scheiderich2015)[7]="Latitude"
+colnames(Scheiderich2015)[8]="Longitude"
+colnames(Rickli2019)[2]="Latitude"
+colnames(Rickli2019)[3]="Longitude"
+colnames(Rickli2019)[7]="Depth"
+colnames(Rickli2019)[9]="d53Cr"
+colnames(Rickli2019)[8]="Cr [nmol_kg]" #Janssen mode
+colnames(Janssen2020)[14]="d53Cr"
+colnames(Janssen2020)[8]="neutral_density"
+colnames(Janssen2020)[13]="NO3"
+colnames(Janssen2021)[11]="d53Cr"
+colnames(Janssen2021)[10]="Cr [nmol_kg]"
+
+
+Reduce(
+  intersect,list(
+    colnames(Scheiderich2015),
+    colnames(Janssen2020),
+    colnames(Demina),
+    colnames(Bonnand2013),
+    colnames(Janssen2021),
+    colnames(Rickli2019))) #All the samples have lon-lat-depth (and ref) in common
+```
+
+```{r merge em all}
+Janssen2020$Station=as.character(Janssen2020$Station)
+
+Crdb<-Reduce(
+    full_join,list(
+        (Scheiderich2015),
+        (Janssen2020),
+        (Demina),
+        (Bonnand2013),
+        (Janssen2021),
+        (Rickli2019)))
+Crdb<-Crdb%>%
+  relocate(ref, Longitude, Latitude, Depth)
+
+```
+Does it have any sense for you? I hope it! I guess that now, you can do the conversion [Cr] --> d53Cr
+```{r quick plots, warning=FALSE, fig.width=9, fig.height=5}
+left<- right<-ggplot(Crdb, aes(y=d53Cr, x=`Cr [nmol_kg]`))+
+  geom_smooth(method = "lm", colour="black")+
+  geom_point(size=5, alpha=.8, aes(shape=ref, colour=as.character(round(Latitude,-1))))+
+  scale_color_brewer(type = "div", palette = "RdBu")+
+  theme_bw()+
+  theme(legend.position = "none")
+
+right<-ggplot(Crdb, aes(y=Depth, x=`Cr [nmol_kg]`))+
+  geom_point(size=5, alpha=.8, aes(shape=ref, colour=as.character(round(Latitude,-1))))+
+  scale_color_brewer(type = "div", palette = "RdBu")+
+  scale_y_reverse()+
+  labs(shape="Reference", colour="Latitude")+
+  theme_bw()
+
+left | right
+```
+

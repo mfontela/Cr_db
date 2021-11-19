@@ -1,0 +1,29 @@
+﻿Title of Dataset: Chromium concentration, redox speciation, and stable isotope data from the North Pacific.
+
+Data Files: Janssen_etal_KM1713_Cr_Data.xlsx
+
+Sample info: Samples collected from a conventional CTD rosette on board the RV Kilo Moana Voyage KM1713 in September 2017.
+Notes: Arithmetic means (total dissolved Cr concentrations and Cr redox speciation) and weighted means (Cr stable isotope data) are presented as well as individual replicate measurements for Cr concentrations and stable isotope composition. Individual measurements for diel and timepoint replicate Cr redox speciation samples are presented in the file Janssen_etal_KM1713_CrIII_Data.xlsx.
+
+Cruise: The cruise on which the samples were collected
+Station: Unique station identifier from the cruise
+Latitude: The latitude where the rosette cast began [degrees and minutes North]
+Longitude: The longitude where the rosette cast began [degrees and minutes West]
+Cast: Unique identifier per station for CTD rosette casts
+Depth: Depth below the surface from which the sample was taken [m]
+Sample ID: Unique sample identifier for Cr samples from the cruise [station-cast-rosette bottle position]
+Neutral Density: Seawater neutral density calculated from CTD measurements of depth, temperature and saliniy using Ocean Data View [kg m-3]
+Salinity: CTD seawater salinity
+Potential Temperature: Seawater potential temperature calculated using Ocean Data View from CTD measurements of temperature and pressure [°C]
+NO3 + NO2: Concentration of NO3- + NO2- determined by autoanalyzer [µM]
+Cr: Total dissolved Cr concentration determined by isotope dilution using double spike methodology [ng kg-1]
+Cr: Total dissolved Cr concentration determined by isotope dilution using double spike methodology [nmol kg-1]
+δ53Cr: Dissolved Cr stable isotope composition expressed in delta notation relative to NIST SRM 979 by double spike methodology [‰]
+2 SEM: Uncertainty of δ53Cr data, expressed as 2 standard errors of the mean. For individual measurements this is the internal uncertainty and for weighted mean samples it is the uncertainty of the weighted mean [‰]
+Cr(III): Dissolved Cr(III) concentrations determined by shipboard Mg(OH)2 co-precipitation followed by isotope dilution [nmol kg-1]
+Cr(III) error: Cr(III) uncertainty expressed as 1 standard deviation [nmol kg-1]
+Cr(III): Dissolved Cr(III) concentrations determined by shipboard Mg(OH)2 co-precipitation followed by isotope dilution, relative to total dissolved Cr [%]
+Cr(III) error: Cr(III) uncertainty expressed as 1 standard deviation relative to total dissolved Cr [%]
+Cr(VI) + Cr(III)NR: Dissolved Cr(VI) plus any potential non-reactive Cr(III) determined by difference between total dissolved Cr and Cr(III) [nmol kg-1]
+Cr(VI) + Cr(III)NR error: Cr(VI) + Cr(III)NR uncertainty expressed as 1 standard deviation [nmol kg-1]
+

@@ -1,0 +1,16 @@
+﻿Title of Dataset: Chromium(III) concentration from diel sampling in the North Pacific.
+
+Data Files: Janssen_etal_KM1713_CrIII_Data.xlsx
+
+Sample info: Samples collected from a conventional CTD rosette on board the RV Kilo Moana voyage KM1713 in September 2017.
+Notes: As diel samples were collected at 1-3 depths per station, the final three headers are repeated two times to show all diel sampling. NA identifies that a sample was not collected, and italics identify samples determined to be statistical outliers by a modified Thompson τ test. Outliers are not included in means presented in Janssen_etal_KM1713_Cr_data.xlsx.
+
+Station: Unique station identifier from RV Kilo Moana cruise KM1713
+Cast: Unique identifier per station for CTD rosette casts
+Time (local): Local time of day when sample filtration began, shortly after recovery of the CTD rosette [HH:MM]
+Time (UTC): UTC time of day when sample filtration began, shortly after recovery of the CTD rosette [HH:MM]
+Date (local): Local date when sample was collected [dd-mmm-yy]
+Date (UTC): UTC date when sample was collected [dd-mmm-yy]
+Depth: Depth below the surface from which the sample was taken [m]
+Cr(III): Dissolved Cr(III) concentrations determined by shipboard Mg(OH)2 co-precipitation followed by isotope dilution [nmol kg-1]
+STDEV: A total Cr(III) uncertainty of 10% is applied to each measurement to account for all uncertainties in sample collection and analysis [nmol kg-1]

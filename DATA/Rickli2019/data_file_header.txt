@@ -1,0 +1,16 @@
+Title of dataset: Seawater chromium concentrations and isotope compositions in the Southern Ocean during the austral summer of 2016/2017 on board the Antarctic Circumnavigation Expedition (ACE). 
+
+Data files: ace_chromium_isotope_concentration.csv
+
+File header
+
+date_time [UTC]: start date and time of the trace metal rosette deployment from which the samples were taken in ISO 8601 format YYYY-MM-DDThh:mm:ss+00:00 [UTC]
+latitude [degN]: latitude at which the trace metal rosette deployment began [decimal degrees North]
+longitude [degE]: longitude at which the trace metal rosette deployment began [decimal degrees East]
+trace_metal_rosette_cast_number: unique identification number of each trace metal rosette cast during the Antarctic Circumnavigation Expedition
+ace_event_number: unique identification number of the trace metal rosette deployment within the Antarctic Circumnavigation Expedition project
+ace_sample_number: unique number of the seawater sample within the ACE project in the format shipname/ACE/legnumber/projectnumber/julianday[UTC]/eventnumber/PIinitials/projectsamplenumber
+depth [m]: depth below the surface from which the seawater sample was taken [m]
+chromium_concentration [nmol/kg]: concentration of chromium (VI and III) measured in the seawater sample, based on a double-spike method [nanomols per kilogram]
+d53Cr [‰]: seawater stable chromium isotope composition (Cr VI and III) expressed in delta-notation relative to NIST SRM 979. Based on a double-spike method [‰]
+internal_error [‰]: In run error on d53Cr (2 standard error of the mean) [‰]
