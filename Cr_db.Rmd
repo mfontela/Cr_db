@@ -65,6 +65,7 @@ Following literature (specially the recent one) I get five more datasets that ca
 
 Some of them can be directly downloaded from [Zenodo](https://zenodo.org/), the *Scheiderich2015*, the *Bonnand2013* and the *MoosBoyle2019* data were manually transferred from the Tables of the article into an Excel file. Some time after the processing I realized that *Bonnand2013* data is included in the *Scheiderich2015* file
 
+## Download data
 
 ```{r download data}
 #I download some files directly from Zenodo
@@ -88,6 +89,7 @@ zen4R::download_zenodo(path = "DATA/Janssen2021", "10.5281/zenodo.5408613")
 }
 ```
 
+## Load data files
 ```{r load files}
 Bonnand2013 <- read_excel("DATA/Bonnand2013.xlsx")%>%
   mutate(ref="Bonnand2013")
@@ -146,8 +148,16 @@ for what I see, the units in **nmol/kg** are the standard
 #Janssen2020 in nmol/kg and ng/kg
 #Janssen2021 in nmol/kg
 
+#Demina
+#2steps: microg/L to migrog/kg (I need a density for that... 1025 kg/m3 as an approach)
+Demina$`Cr [nmol_kg]`=Demina$`Cr [µg/l] (dissolved, Atomic absorption ...)`/1.025
+#microg/kg to micromol/kg
+Demina$`Cr [nmol_kg]`=Demina$`Cr [nmol_kg]`/26.982
+#micromol (10^-6)/kg to nmol(10^-9)/kg
+Demina$`Cr [nmol_kg]`=Demina$`Cr [nmol_kg]`*1000
 #Inside Scheid2015 there is the Bonnand data in ng/kg. Molar mass Chromium: 26.982 g/mol
 Scheiderich2015<-mutate(Scheiderich2015, `Cr [nmol_kg]`= `Cr (ng/kg)`/26.982)
+
 ```
  
   The next step is to merge the databases in a single one
@@ -197,22 +207,34 @@ Crdb<-Crdb%>%
   relocate(ref, Longitude, Latitude, Depth)
 
 ```
-Does it have any sense for you? I hope it! I guess that now, you can do the conversion [Cr] --> d53Cr
+Does it have sense for you? I hope it! 
 ```{r quick plots, warning=FALSE, fig.width=9, fig.height=5}
 left<- right<-ggplot(Crdb, aes(y=d53Cr, x=`Cr [nmol_kg]`))+
   geom_smooth(method = "lm", colour="black")+
   geom_point(size=5, alpha=.8, aes(shape=ref, colour=as.character(round(Latitude,-1))))+
   scale_color_brewer(type = "div", palette = "RdBu")+
+  scale_x_continuous(limits = c(0,15))+ #There is a point at 40...
   theme_bw()+
   theme(legend.position = "none")
 
 right<-ggplot(Crdb, aes(y=Depth, x=`Cr [nmol_kg]`))+
   geom_point(size=5, alpha=.8, aes(shape=ref, colour=as.character(round(Latitude,-1))))+
   scale_color_brewer(type = "div", palette = "RdBu")+
+  scale_x_continuous(limits = c(0,15))+ #There is a point at 40...
   scale_y_reverse()+
-  labs(shape="Reference", colour="Latitude")+
+  labs(shape="Reference", colour="º Latitude")+
   theme_bw()
 
 left | right
 ```
+
+I guess that now, you can do the conversion [Cr] --> d53Cr... but there is a big "problem": practically all this data already have d53Cr values associated. Only *Demina1989* does not have it... so very few "new" d53Cr points.(~ around 40)
+
+## Export
+
+Export the new database called **Crdb** in a worksheet.
+```{r export}
+write.table(Crdb, "DATA/Cr_CoralOX_db.csv", row.names = FALSE)
+```
+
 
