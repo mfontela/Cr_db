@@ -1,5 +1,5 @@
 ---
-title: "Chromium database for CoralOX"
+title: "Chromium database for CoralOx"
 author: "Marcos Fontela"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
@@ -39,8 +39,8 @@ The same happens in *PANGAEA*, with almost no dissolved measurements. Most of th
 
 * Demina, Lyudmila L; Atnashev, Vitaly B (1989): Concentrations of dissolved and particulate heavy metals in waters above the northwestern slope of the Paramushir Island (Sea of Okhotsk). PANGAEA, https://doi.org/10.1594/PANGAEA.757685, Supplement to: Demina, LL; Atnashev, VB (1989): Anomalous behavior of metals in the vicinity of an underwater gas vent off Paramushir Island, Sea of Okhotsk. Oceanology, 29(6), 708-714
 
-```{r pangaea}
-pangaear::pg_search(query = "dissolved chromium seawater")
+```{r pangaea, echo=TRUE}
+# pangaear::pg_search(query = "dissolved chromium seawater")%>% relocate(citation)
 #Most of them are in particulate or not even in seawater
 #The most promising one:
 Demina_doi="10.1594/PANGAEA.757685" #https://doi.pangaea.de/10.1594/PANGAEA.757685
@@ -67,7 +67,7 @@ Some of them can be directly downloaded from [Zenodo](https://zenodo.org/), the 
 
 ## Download data
 
-```{r download data}
+```{r download data, echo=TRUE}
 #I download some files directly from Zenodo
 #The first time you run the markdown file, the files are downloaded.
 if (!dir.exists("DATA/Rickli2019")) { #But don't if they already exists.
@@ -90,7 +90,7 @@ zen4R::download_zenodo(path = "DATA/Janssen2021", "10.5281/zenodo.5408613")
 ```
 
 ## Load data files
-```{r load files}
+```{r load files, echo=TRUE}
 Bonnand2013 <- read_excel("DATA/Bonnand2013.xlsx")%>%
   mutate(ref="Bonnand2013")
 
@@ -129,6 +129,8 @@ Janssen2020 <- read_excel("DATA/Janssen2020.xlsx",
   mutate(ref="Janssen2020")
 ```
 
+## Merge different sources
+
 One of the problems, [Cr] does not share units:
 *Demina microg/L
 *Bonnand2013 in in nM (= nmol/L)
@@ -140,7 +142,7 @@ One of the problems, [Cr] does not share units:
 
 for what I see, the units in **nmol/kg** are the standard
 
-```{r Cr in the same units}
+```{r Cr in the same units, echo=TRUE}
 #Demina microg/L
 #Bonnand2013 in in nM (= nmol/L)
 #Scheid2015 in ng/kg
@@ -162,7 +164,7 @@ Scheiderich2015<-mutate(Scheiderich2015, `Cr [nmol_kg]`= `Cr (ng/kg)`/26.982)
  
   The next step is to merge the databases in a single one
 
-```{r fix column names}
+```{r fix column names, echo=TRUE}
 # Longitude, Latitude, Station, Depth, Cr [nmol_kg], d53Cr
 colnames(Bonnand2013)[1]="Station"
 colnames(Bonnand2013)[4]="Depth"
@@ -192,7 +194,7 @@ Reduce(
     colnames(Rickli2019))) #All the samples have lon-lat-depth (and ref) in common
 ```
 
-```{r merge em all}
+```{r merge em all, echo=TRUE}
 Janssen2020$Station=as.character(Janssen2020$Station)
 
 Crdb<-Reduce(
@@ -209,11 +211,10 @@ Crdb<-Crdb%>%
 ```
 Does it have sense for you? I hope it! 
 ```{r quick plots, warning=FALSE, fig.width=9, fig.height=5}
-left<- right<-ggplot(Crdb, aes(y=d53Cr, x=`Cr [nmol_kg]`))+
+left<- right<-ggplot(Crdb, aes(y=d53Cr, x=log10(`Cr [nmol_kg]`)))+
   geom_smooth(method = "lm", colour="black")+
   geom_point(size=5, alpha=.8, aes(shape=ref, colour=as.character(round(Latitude,-1))))+
   scale_color_brewer(type = "div", palette = "RdBu")+
-  scale_x_continuous(limits = c(0,15))+ #There is a point at 40...
   theme_bw()+
   theme(legend.position = "none")
 
@@ -233,7 +234,7 @@ I guess that now, you can do the conversion [Cr] --> d53Cr... but there is a big
 ## Export
 
 Export the new database called **Crdb** in a worksheet.
-```{r export}
+```{r export, echo=TRUE}
 write.table(Crdb, "DATA/Cr_CoralOX_db.csv", row.names = FALSE)
 ```
 
