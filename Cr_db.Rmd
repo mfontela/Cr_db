@@ -55,6 +55,8 @@ Following literature (specially the recent one) I get five more datasets that ca
 
 * Scheiderich K, Amini M, Holmden C, Francois R (2015) Global variability of chromium isotopes in seawater demonstrated by Pacific, Atlantic, and Arctic Ocean samples. Earth Planet Sci Lett 423:87–97. https://doi.org/https://doi.org/10.1016/j.epsl.2015.04.030
 
+* Goring-Harford, H.J., Klar, J.K., Pearce, C.R., Connelly, D.P., Achterberg, E.P., James, R.H., (2018). Behaviour of chromium isotopes in the eastern sub-tropical Atlantic Oxygen Minimum Zone. Geochim. Cosmochim. Acta236, 41–59. https://doi.org/10.1016/j.gca.2018.03.004
+
 * Rickli J, Janssen DJ, Hassler C, et al (2019) Chromium biogeochemistry and stable isotope distribution in the Southern Ocean. Geochim Cosmochim Acta 262:188–206. https://doi.org/https://doi.org/10.1016/j.gca.2019.07.033
 
 * Moos SB, Boyle EA (2019) Determination of accurate and precise chromium isotope ratios in seawater samples by MC-ICP-MS illustrated by analysis of SAFe Station in the North Pacific Ocean. Chem Geol 511:481–493. https://doi.org/https://doi.org/10.1016/j.chemgeo.2018.07.027
@@ -63,7 +65,7 @@ Following literature (specially the recent one) I get five more datasets that ca
 
 * Janssen DJ, Rickli J, Abbott AN, et al (2021) Release from biogenic particles, benthic fluxes, and deep water circulation control Cr and δ53Cr distributions in the ocean interior. Earth Planet Sci Lett 574:117163. https://doi.org/https://doi.org/10.1016/j.epsl.2021.117163
 
-Some of them can be directly downloaded from [Zenodo](https://zenodo.org/), the *Scheiderich2015*, the *Bonnand2013* and the *MoosBoyle2019* data were manually transferred from the Tables of the article into an Excel file. Some time after the processing I realized that *Bonnand2013* data is included in the *Scheiderich2015* file
+Some of them can be directly downloaded from [Zenodo](https://zenodo.org/), the *Scheiderich2015*, the *Bonnand2013*, the *GoringHardford2018* and the *MoosBoyle2019* data were manually transferred from the Tables of the article into an Excel file. Some time after the processing I realized that *Bonnand2013* data is included in the *Scheiderich2015* file...
 
 ## Download data
 
@@ -100,6 +102,9 @@ Scheiderich2015 <- read_excel("DATA/Scheiderich2015.xlsx")%>%
 Rickli2019 <- read_csv("DATA/Rickli2019/ace_chromium_isotope_concentration.csv", show_col_types = FALSE)%>% #perfect
   mutate(ref="Rickli2019")
 
+GoringHardford2018 <- read_excel("DATA/GoringHardford2018.xlsx")%>%
+  mutate(ref="GoringHardford2018")
+
 MoosBoyle2019 <- read_excel("DATA/MoosBoyle2019.xlsx", skip = 1)%>%
   mutate(ref="MoosBoyle2019")
 
@@ -112,7 +117,7 @@ Janssen2021 <- read_delim("DATA/Janssen2021/Janssen_etal_d53CrData_Zenodo.txt",
   mutate(ref="Janssen2021")
 #fix colnames:
 colnames(Janssen2021)[8]="neutral_density"
-colnames(Janssen2021)[11]="53Cr"
+colnames(Janssen2021)[11]="d53Cr"
 colnames(Janssen2021)[12]="error53Cr"
 #delete the first two rows (they are empty or have units) and convert to numeric
 Janssen2021=Janssen2021[-(1:2),]
@@ -180,7 +185,6 @@ colnames(Rickli2019)[8]="Cr [nmol_kg]" #Janssen mode
 colnames(Janssen2020)[14]="d53Cr"
 colnames(Janssen2020)[8]="neutral_density"
 colnames(Janssen2020)[13]="NO3"
-colnames(Janssen2021)[11]="d53Cr"
 colnames(Janssen2021)[10]="Cr [nmol_kg]"
 
 
@@ -204,6 +208,7 @@ Crdb<-Reduce(
         (Demina),
         (Bonnand2013),
         (Janssen2021),
+        (GoringHardford2018),
         (Rickli2019)))
 Crdb<-Crdb%>%
   relocate(ref, Longitude, Latitude, Depth)
@@ -237,5 +242,3 @@ Export the new database called **Crdb** in a worksheet.
 ```{r export, echo=TRUE}
 write.table(Crdb, "DATA/Cr_CoralOX_db.csv", row.names = FALSE)
 ```
-
-
